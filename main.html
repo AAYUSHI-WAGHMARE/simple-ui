@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explainable AI for Self-Driving Cars</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('car.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            color: #333;
+        }
+
+        header {
+            background-color: #3e3e45;
+            color: #fff;
+            padding: 10px 20px;
+            text-align: center;
+        }
+
+        main {
+            margin: 20px;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
+        .left-column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 400px;
+        }
+
+        .section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.8);
+            /* Translucent background */
+        }
+
+        .section h2 {
+            margin-top: 0;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        select,
+        button {
+            display: block;
+            margin-top: 5px;
+            padding: 8px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        button {
+            background-color: #5a6b7e;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        .modal h3 {
+            margin-top: 0;
+        }
+
+        .modal p {
+            margin: 10px 0;
+        }
+
+        .modal button {
+            background-color: #191567;
+            color: #fff;
+        }
+
+        .modal button:hover {
+            background-color: #224280;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        /* Video Section */
+        video {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .video-section {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+         .video-container {
+            flex: 1;
+            max-width: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+
+        .video-section video {
+            width: 100%;
+            max-width: 600px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Explainable AI Interface for Self-Driving Cars</h1>
+    </header>
+    <main>
+        <!-- Left Side: Input Section -->
+        <div class="left-column">
+            <!-- Image Upload Section -->
+            <div class="section">
+                <h2>Upload Image</h2>
+                <input type="file" id="image-upload" accept="image/*" onchange="uploadImage()" />
+                <p id="image-status">No image uploaded</p>
+            </div>
+
+            <div class="section">
+                <h2>Vehicle Behavior Explanation</h2>
+                <label for="event-select">Select Event:</label>
+                <select id="event-select">
+                    <option value="stop-sign">Stopped at Stop Sign</option>
+                    <option value="lane-change">Lane Change</option>
+                    <option value="pedestrian">Yielded to Pedestrian</option>
+                </select>
+                <button onclick="explainDecision()">Explain Decision</button>
+            </div>
+
+            <div class="section">
+                <h2>Sensor Data Viewer</h2>
+                <label for="sensor-data">View Sensor Data:</label>
+                <select id="sensor-data">
+                    <option value="camera">Camera</option>
+                    <option value="lidar">Lidar</option>
+                    <option value="radar">Radar</option>
+                </select>
+                <button onclick="showSensorData()">Show Data</button>
+            </div>
+
+            <div class="section">
+                <h2>Risk Analysis</h2>
+                <label for="risk-assessment">Select Scenario:</label>
+                <select id="risk-assessment">
+                    <option value="traffic-light">Traffic Light Decision</option>
+                    <option value="speed-limit">Speed Limit Compliance</option>
+                    <option value="collision-avoidance">Collision Avoidance</option>
+                </select>
+                <button onclick="analyzeRisk()">Analyze Risk</button>
+            </div>
+        </div>
+
+        <!-- Right Side: Video Section -->
+        <div class="video-container">
+            <video autoplay muted loop>
+                <source src="C:\Users\AAYUSHI\FrontendWorkspace\88481-606110665_small.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </main>
+
+    <!-- Modal Overlays -->
+    <div class="overlay" onclick="closeModal('vehicle-modal'); closeModal('sensor-modal'); closeModal('risk-modal');">
+    </div>
+
+    <!-- Vehicle Modal -->
+    <div class="modal" id="vehicle-modal">
+        <h3>Vehicle Behavior Explanation</h3>
+        <p class="modal-content"></p>
+        <button onclick="closeModal('vehicle-modal')">Close</button>
+    </div>
+
+    <!-- Sensor Modal -->
+    <div class="modal" id="sensor-modal">
+        <h3>Sensor Data Viewer</h3>
+        <p class="modal-content"></p>
+        <button onclick="closeModal('sensor-modal')">Close</button>
+    </div>
+
+    <!-- Risk Modal -->
+    <div class="modal" id="risk-modal">
+        <h3>Risk Analysis</h3>
+        <p class="modal-content"></p>
+        <button onclick="closeModal('risk-modal')">Close</button>
+    </div>
+
+    <!-- JavaScript Code -->
+    <script>
+        function showModal(modalId, content) {
+            document.getElementById(modalId).querySelector(".modal-content").innerHTML = content;
+            document.getElementById(modalId).style.display = "block";
+            document.querySelector(".overlay").style.display = "block";
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = "none";
+            document.querySelector(".overlay").style.display = "none";
+        }
+
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function uploadImage() {
+            const fileInput = document.getElementById("image-upload");
+            const imageStatus = document.getElementById("image-status");
+
+            if (fileInput.files.length > 0) {
+                imageStatus.textContent = "Image is being scanned...";
+                setTimeout(() => {
+                    imageStatus.textContent = "Image uploaded successfully!";
+                }, 2000); // Simulate image scanning delay
+            } else {
+                imageStatus.textContent = "No image uploaded";
+            }
+        }
+
+        function explainDecision() {
+            const event = document.getElementById('event-select').value;
+            let explanation;
+            if (event === "stop-sign") {
+                explanation = `The vehicle stopped at the stop sign to comply with traffic rules. Safety confidence: ${getRandomInt(85, 95)}%.`;
+            } else if (event === "lane-change") {
+                explanation = `The vehicle performed a lane change after detecting a clear path. Clearance margin: ${getRandomInt(2, 5)} meters.`;
+            } else if (event === "pedestrian") {
+                explanation = `The vehicle yielded to the pedestrian to avoid a collision. Decision time: ${getRandomInt(500, 1500)} ms.`;
+            }
+            showModal('vehicle-modal', explanation);
+        }
+
+        function showSensorData() {
+            const sensor = document.getElementById('sensor-data').value;
+            let dataInfo;
+            if (sensor === "camera") {
+                dataInfo = `Camera data includes visual inputs with pixel accuracy of ${getRandomInt(95, 99)}%.`;
+            } else if (sensor === "lidar") {
+                dataInfo = `Lidar generated a 3D map with object detection range up to ${getRandomInt(50, 100)} meters.`;
+            } else if (sensor === "radar") {
+                dataInfo = `Radar detected surrounding objects at a speed range of ${getRandomInt(30, 120)} km/h.`;
+            }
+            showModal('sensor-modal', dataInfo);
+        }
+
+        function analyzeRisk() {
+            const scenario = document.getElementById('risk-assessment').value;
+            let riskInfo;
+            if (scenario === "traffic-light") {
+                riskInfo = `Traffic light decision was analyzed. Reaction delay: ${getRandomInt(200, 700)} ms.`;
+            } else if (scenario === "speed-limit") {
+                riskInfo = `Speed compliance verified. Margin over limit: ${getRandomInt(0, 5)} km/h.`;
+            } else if (scenario === "collision-avoidance") {
+                riskInfo = `Collision avoidance strategies executed with ${getRandomInt(90, 99)}% success.`;
+            }
+            showModal('risk-modal', riskInfo);
+        }
+    </script>
+</body>
+
+</html>
